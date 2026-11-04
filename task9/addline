@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [[ $# -ne 1 ]]; then
+    echo "Ошибка: требуется ровно один аргумент — путь к каталогу" >&2
+    exit 1
+fi
+
+if [[ ! -d "$1" ]]; then
+    echo "Ошибка: '$1' не является каталогом" >&2
+    exit 1
+fi
+
+dir="$1"
+user=$(whoami)
+today=$(date -I)
+
+shopt -s nullglob
+for file in "$dir"/*.txt; do
+    [[ -f "$file" ]] && sed -i "1i Approved $user $today" "$file"
+done

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+trap 'echo; echo "Для выхода введите q или Q"' INT
+
+while :
+do
+    secret=$(shuf -i 0-9 -n 4 | tr -d '\n')
+    [[ "$secret" != 0* ]] && break
+done
+
+history=()
+step=0
+
+echo "*********************************************************************************"
+echo "* Я загадал 4-значное число с неповторяющимися цифрами. На каждом ходу делайте  *"
+echo "* попытку отгадать загаданное число. Попытка — это 4-значное число с            *"
+echo "* неповторяющимися цифрами.                                                     *"
+echo "*********************************************************************************"
+
+while :
+do
+    read -r -p "Попытка $((step+1)): " input || exit 1
+
+    [[ "$input" =~ ^[qQ]$ ]] && exit 1
+
+    if [[ ! "$input" =~ ^[0-9]{4}$ ]] || [[ $(grep -o . <<< "$input" | sort -u | wc -l) -ne 4 ]]; then
+        echo "Ошибка! Введите 4-значное число с уникальными цифрами"
+        continue
+    fi
+
+    ((step++))
+
+    bulls=0
+    cows=0
+
+    for i in {0..3}; do
+        if [[ "${secret:$i:1}" == "${input:$i:1}" ]]; then
+            ((bulls++))
+        elif [[ "$secret" == *"${input:$i:1}"* ]]; then
+            ((cows++))
+        fi
+    done
+
+    history+=("$step. $input (Коров - $cows Быков - $bulls)")
+    echo -e "\nИстория ходов:"
+    printf '%s\n' "${history[@]}"
+    echo
+
+    if (( bulls == 4 )); then
+        echo "Поздравляю! Вы угадали число $secret за $step ходов!"
+        exit 0
+    fi
+done

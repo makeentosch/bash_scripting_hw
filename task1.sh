@@ -8,7 +8,8 @@ step=0
 hits=0
 numbers=()
 
-while true; do
+while :
+do
     my_number=$(( RANDOM % 10 ))
     ((step++))
 
@@ -22,14 +23,22 @@ while true; do
 
     if (( my_number == input )); then
         ((hits++))
-        echo -e "Hit! My number: ${GREEN}${my_number}${RESET}"
+        echo -e "Hit! My number: $my_number"
         numbers+=("${GREEN}${my_number}${RESET}")
     else
-        echo -e "Miss! My number: ${RED}${my_number}${RESET}"
+        echo -e "Miss! My number: $my_number"
         numbers+=("${RED}${my_number}${RESET}")
     fi
 
     hit_percent=$(( hits * 100 / step ))
     echo -e "Hit: ${hit_percent}% Miss: $((100 - hit_percent))%"
-    echo -e "Numbers: ${numbers[@]: -10}"
+
+    count=${#numbers[@]}
+    if (( count > 10 )); then
+        start=$(( count - 10 ))
+    else
+        start=0
+    fi
+
+    echo -e "Numbers: ${numbers[@]:start}"
 done
